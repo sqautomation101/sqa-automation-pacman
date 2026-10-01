@@ -3,6 +3,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .kotlin
+test-output
+.idea/
+.DS_Store
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
