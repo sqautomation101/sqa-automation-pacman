@@ -10,10 +10,6 @@ public class BasePage {
         this.page = page;
     }
 
-    public void openUrl(String url) {
-        page.navigate(url);
-    }
-
     public void click(String locator) {
         page.locator(locator).click();
     }

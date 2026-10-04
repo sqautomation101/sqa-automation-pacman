@@ -5,31 +5,26 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class ConfigReader {
-
-    private static final Properties properties = new Properties();
+    private static final Properties props = new Properties();
 
     static {
-        try (InputStream input =
-                     ConfigReader.class
-                             .getClassLoader()
-                             .getResourceAsStream("config/sit.properties")) {
-
-            if (input == null) {
-                throw new RuntimeException(
-                        "sit.properties not found in config folder"
-                );
+        String env = System.getProperty("env", "sit"); // default to sit
+        String path = "config/" + env + ".properties";
+        try (InputStream is = ConfigReader.class.getClassLoader().getResourceAsStream(path)) {
+            if (is == null) {
+                throw new RuntimeException("Config file not found: " + path);
             }
-
-            properties.load(input);
-
+            props.load(is);
         } catch (IOException e) {
-            throw new RuntimeException(
-                    "Failed to load sit.properties", e
-            );
+            throw new RuntimeException("Failed to load " + path, e);
         }
     }
 
     public static String get(String key) {
-        return properties.getProperty(key);
+        return props.getProperty(key);
+    }
+
+    public static boolean getBoolean(String key) {
+        return Boolean.parseBoolean(props.getProperty(key));
     }
 }

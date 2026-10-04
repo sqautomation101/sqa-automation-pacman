@@ -1,9 +1,8 @@
 package stepDefinitions;
 
-import com.microsoft.playwright.Page;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
-import managers.PlaywrightManager;
+import hooks.Hooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pages.LandingPage;
@@ -15,17 +14,11 @@ public class LandingPageStep {
 
     private static final Logger LOG = LogManager.getLogger(LandingPageStep.class);
 
-    private final LandingPage landingPage;
-
     // =========================
-    // CONSTRUCTOR
+    // HELPERS
     // =========================
-    public LandingPageStep() {
-
-        LOG.debug("Initializing LandingPageStep");
-
-        Page page = PlaywrightManager.getPage();
-        this.landingPage = new LandingPage(page);
+    private LandingPage landingPage() {
+        return Hooks.getPageManager().getLandingPage();
     }
 
     // =========================
@@ -37,10 +30,11 @@ public class LandingPageStep {
         ReportLogger.info("Navigating to Business Unit - Login Entry Point");
 
         try {
-            landingPage.open();
+            landingPage().openBU();
             ReportLogger.pass("Successfully opened Business Unit - Login Entry Point");
 
         } catch (Exception | AssertionError e) {
+            LOG.error("Navigation to Business Unit - Login Entry Point failed", e);
             ReportLogger.fail("Failed to open Business Unit - Login Entry Point. Error: "
                     + e.getMessage(), e);
             throw e;
@@ -50,17 +44,17 @@ public class LandingPageStep {
     // =========================
     // VERIFICATION
     // =========================
-    @Then("the {string} page is displayed")
-    public void thePageIsDisplayed(String pageName) {
+    @Then("the {string} button is displayed")
+    public void theButtonIsDisplayed(String buttonName) {
 
-        ReportLogger.info("Verifying that the " + pageName + " page is displayed");
+        ReportLogger.info("Verifying that the " + buttonName + " button is displayed");
 
         try {
-            assertThat(landingPage.getLandingPageLogo()).isVisible();
-            ReportLogger.pass("Successfully verified that the " + pageName + " page is displayed");
+            assertThat(landingPage().getLoginWsmacButton()).isVisible();
+            ReportLogger.pass("Successfully verified that the " + buttonName + " button is displayed");
 
         } catch (Exception | AssertionError e) {
-            ReportLogger.fail("Failed to verify " + pageName + " page. Error: "
+            ReportLogger.fail("Failed to verify the " + buttonName + " button. Error: "
                     + e.getMessage(), e);
             throw e;
         }

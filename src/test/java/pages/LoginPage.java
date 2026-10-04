@@ -3,9 +3,15 @@ package pages;
 import base.BasePage;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import utils.ConfigReader;
 
-public class LandingPage extends BasePage {
+public class LoginPage extends BasePage {
+
+    // =========================
+    // CONSTRUCTOR
+    // =========================
+    public LoginPage(Page page) {
+        super(page);
+    }
 
     // =========================
     // LOCATORS
@@ -13,19 +19,8 @@ public class LandingPage extends BasePage {
     private final Locator loginWsmacButton = page.locator("button.btn.btn-secondary");
 
     // =========================
-    // CONSTRUCTOR
-    // =========================
-    public LandingPage(Page page) {
-        super(page);
-    }
-
-    // =========================
     // ACTIONS
     // =========================
-    public void openBU() {
-        page.navigate(ConfigReader.get("baseUrl"));
-    }
-
     public void clickLoginWsmac() {
         loginWsmacButton.click();
     }
