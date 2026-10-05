@@ -21,24 +21,5 @@ public class LoginPageStep {
     // =========================
     // ACTIONS
     // =========================
-    @When("the user clicks the {string} button")
-    public void theUserClicksTheButton(String buttonName) {
 
-        ReportLogger.info("Clicking the " + buttonName + " button");
-
-        try {
-            switch (buttonName) {
-                case "Login with SMAC" -> loginPage().clickLoginWsmac();
-                default -> throw new IllegalArgumentException(
-                        "Unsupported button name: '" + buttonName + "'");
-            }
-            ReportLogger.pass("Successfully clicked the " + buttonName + " button");
-
-        } catch (Exception | AssertionError e) {
-            LOG.error("Failed to click the {} button", buttonName, e);
-            ReportLogger.fail("Failed to click the " + buttonName + " button. Error: "
-                    + e.getMessage(), e);
-            throw e;
-        }
-    }
 }

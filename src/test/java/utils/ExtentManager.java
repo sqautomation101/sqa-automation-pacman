@@ -31,6 +31,7 @@ public final class ExtentManager {
             extent.setSystemInfo("Headless", valueOrDefault(ConfigReader.get("headless")));
             extent.setSystemInfo("OS", System.getProperty("os.name"));
             extent.setSystemInfo("Java", System.getProperty("java.version"));
+            extent.setSystemInfo("Device", managers.PlaywrightManager.resolveDevice());
         }
         return extent;
     }

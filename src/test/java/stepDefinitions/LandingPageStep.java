@@ -1,24 +1,55 @@
 package stepDefinitions;
 
+import hooks.Hooks;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
-import hooks.Hooks;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import io.cucumber.java.en.When;
 import pages.LandingPage;
 import utils.ReportLogger;
 
+import java.util.regex.Pattern;
+
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static pages.LandingPage.escapeForRegex;
 
 public class LandingPageStep {
-
-    private static final Logger LOG = LogManager.getLogger(LandingPageStep.class);
 
     // =========================
     // HELPERS
     // =========================
     private LandingPage landingPage() {
         return Hooks.getPageManager().getLandingPage();
+    }
+
+    private void verifyElementDisplayed(String elementName) {
+
+        ReportLogger.info("Verifying that the " + elementName + " is displayed");
+
+        try {
+            assertThat(landingPage().locatorFor(elementName)).isVisible();
+            ReportLogger.pass("Successfully verified that the " + elementName + " is displayed");
+
+        } catch (Exception | AssertionError e) {
+            ReportLogger.fail("Failed to verify the " + elementName + ". Error: "
+                    + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private void verifyUrlContains(String expectedPart) {
+
+        ReportLogger.info("Verifying that the page URL contains '" + expectedPart + "'");
+
+        try {
+            assertThat(landingPage().getPage())
+                    .hasURL(Pattern.compile(".*" + escapeForRegex(expectedPart) + ".*"));
+            ReportLogger.pass("Page URL contains '" + expectedPart + "'");
+
+        } catch (Exception | AssertionError e) {
+            ReportLogger.fail("Page URL does not contain '" + expectedPart + "'. Error: "
+                    + e.getMessage(), e);
+            throw e;
+        }
     }
 
     // =========================
@@ -34,7 +65,6 @@ public class LandingPageStep {
             ReportLogger.pass("Successfully opened Business Unit - Login Entry Point");
 
         } catch (Exception | AssertionError e) {
-            LOG.error("Navigation to Business Unit - Login Entry Point failed", e);
             ReportLogger.fail("Failed to open Business Unit - Login Entry Point. Error: "
                     + e.getMessage(), e);
             throw e;
@@ -42,19 +72,64 @@ public class LandingPageStep {
     }
 
     // =========================
-    // VERIFICATION
+    // ACTIONS
+    // =========================
+    @When("the user clicks the {string} button")
+    public void theUserClicksTheButton(String buttonName) {
+
+        ReportLogger.info("Clicking the " + buttonName + " button");
+
+        try {
+            landingPage().clickElement(buttonName);
+            ReportLogger.pass("Successfully clicked the " + buttonName + " button");
+
+        } catch (Exception | AssertionError e) {
+            ReportLogger.fail("Failed to click the " + buttonName + " button. Error: "
+                    + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    // =========================
+    // VERIFICATION - ELEMENTS
     // =========================
     @Then("the {string} button is displayed")
     public void theButtonIsDisplayed(String buttonName) {
+        verifyElementDisplayed(buttonName);
+    }
 
-        ReportLogger.info("Verifying that the " + buttonName + " button is displayed");
+    @Then("the {string} page should be displayed")
+    public void thePageShouldBeDisplayed(String pageName) {
+        verifyElementDisplayed(pageName);
+    }
+
+    // =========================
+    // VERIFICATION - URL
+    // =========================
+    @Then("the page URL should contain {string}")
+    public void thePageUrlShouldContain(String expectedPart) {
+        verifyUrlContains(expectedPart);
+    }
+
+    @Then("the channel id should contain {string}")
+    public void theChannelIdShouldContain(String expectedPart) {
+        verifyUrlContains(expectedPart);
+    }
+
+    // =========================
+    // VERIFICATION - TITLE
+    // =========================
+    @Then("the browser tab title should be {string}")
+    public void theBrowserTabTitleShouldBe(String expectedTitle) {
+
+        ReportLogger.info("Verifying that the browser tab title is '" + expectedTitle + "'");
 
         try {
-            assertThat(landingPage().getLoginWsmacButton()).isVisible();
-            ReportLogger.pass("Successfully verified that the " + buttonName + " button is displayed");
+            assertThat(landingPage().getPage()).hasTitle(expectedTitle);
+            ReportLogger.pass("Browser tab title is '" + expectedTitle + "'");
 
         } catch (Exception | AssertionError e) {
-            ReportLogger.fail("Failed to verify the " + buttonName + " button. Error: "
+            ReportLogger.fail("Browser tab title is not '" + expectedTitle + "'. Error: "
                     + e.getMessage(), e);
             throw e;
         }
