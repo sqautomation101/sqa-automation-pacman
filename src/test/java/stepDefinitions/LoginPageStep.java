@@ -21,9 +21,4 @@ public class LoginPageStep {
     // =========================
     // ACTIONS
     // =========================
-
-<<<<<<< Updated upstream
 }
-=======
-    }
->>>>>>> Stashed changes
