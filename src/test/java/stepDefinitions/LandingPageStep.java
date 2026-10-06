@@ -1,22 +1,14 @@
 package stepDefinitions;
 
+import com.microsoft.playwright.Locator;
 import hooks.Hooks;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-<<<<<<< Updated upstream
-import pages.LandingPage;
-import utils.ReportLogger;
-=======
 import managers.PlaywrightManager;
 import pages.LandingPage;
 import utils.ConfigReader;
 import utils.ReportLogger;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.regex.Pattern;
->>>>>>> Stashed changes
 
 import java.util.regex.Pattern;
 
@@ -32,12 +24,17 @@ public class LandingPageStep {
         return Hooks.getPageManager().getLandingPage();
     }
 
+    /** Finds the element on whichever page has it. */
+    private Locator locatorFor(String elementName) {
+        return Hooks.getPageManager().locatorFor(elementName);
+    }
+
     private void verifyElementDisplayed(String elementName) {
 
         ReportLogger.info("Verifying that the " + elementName + " is displayed");
 
         try {
-            assertThat(landingPage().locatorFor(elementName)).isVisible();
+            assertThat(locatorFor(elementName)).isVisible();
             ReportLogger.pass("Successfully verified that the " + elementName + " is displayed");
 
         } catch (Exception | AssertionError e) {
@@ -91,7 +88,7 @@ public class LandingPageStep {
         ReportLogger.info("Clicking the " + buttonName + " button");
 
         try {
-            landingPage().clickElement(buttonName);
+            locatorFor(buttonName).click();
             ReportLogger.pass("Successfully clicked the " + buttonName + " button");
 
         } catch (Exception | AssertionError e) {
