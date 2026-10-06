@@ -4,8 +4,19 @@ import hooks.Hooks;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+<<<<<<< Updated upstream
 import pages.LandingPage;
 import utils.ReportLogger;
+=======
+import managers.PlaywrightManager;
+import pages.LandingPage;
+import utils.ConfigReader;
+import utils.ReportLogger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.regex.Pattern;
+>>>>>>> Stashed changes
 
 import java.util.regex.Pattern;
 
@@ -55,13 +66,13 @@ public class LandingPageStep {
     // =========================
     // NAVIGATION
     // =========================
-    @Given("that the user navigates on the Business Unit - Login Entry Point")
-    public void thatTheUserNavigatesOnTheBusinessUnitLoginEntryPoint() {
+    @Given("the user navigates on the Business Unit - Login Entry Point")
+    public void theUserNavigatesOnTheBusinessUnitLoginEntryPoint() {
 
         ReportLogger.info("Navigating to Business Unit - Login Entry Point");
 
         try {
-            landingPage().openBU();
+            PlaywrightManager.getPage().navigate(ConfigReader.get("baseUrl"));
             ReportLogger.pass("Successfully opened Business Unit - Login Entry Point");
 
         } catch (Exception | AssertionError e) {

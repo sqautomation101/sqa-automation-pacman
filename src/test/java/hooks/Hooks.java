@@ -37,11 +37,10 @@ public class Hooks {
         ExtentTest test = ExtentManager.getInstance().createTest(scenario.getName());
         ExtentTestManager.setTest(test);
 
-        PlaywrightManager.init();   // throws if the browser can't start
-        PlaywrightManager.getPage().navigate(ConfigReader.get("baseUrl"));
-        PAGE_MANAGER.set(new PageManager(PlaywrightManager.getPage()));
+        PlaywrightManager.init();   // open the browser only; the scenario chooses the device
+        PAGE_MANAGER.set(new PageManager());   // pages will ask for the current page when needed
 
-        LOG.info("Browser opened and navigated to {}", ConfigReader.get("baseUrl"));
+        LOG.info("Browser launched. Waiting for the scenario to choose a device.");
     }
 
     /** Runs after every scenario. */
@@ -83,6 +82,10 @@ public class Hooks {
 
     /** Returns null (and logs) if the screenshot can't be taken, so reporting still happens. */
     private byte[] captureScreenshot() {
+        if (PlaywrightManager.getDevice() == null) {
+            LOG.info("No page was opened in this scenario, skipping screenshot.");
+            return null;
+        }
         try {
             return PlaywrightManager.getPage().screenshot();
         } catch (Exception e) {
