@@ -17,7 +17,7 @@ public class LoginPageStep {
     private LoginPage loginPage() {
         return Hooks.getPageManager().getLoginPage();
     }
-
+///comment
     // =========================
     // ACTIONS
     // =========================
