@@ -28,6 +28,25 @@ Feature: Login page
         | element |
         | Home    |
 
+  Rule: On desktop, the login page shows store navigation and a promo panel
+
+    Background:
+      Given the user is using a desktop browser
+      And the user has never logged in on this device
+
+    @desktop
+    Scenario: User returns to the Business Unit - Login Entry Point via Back to Store button
+
+      Given the user navigates on the Business Unit - Login Entry Point
+      And the user clicks the "Login with SMAC" button
+      When the user clicks the "Back to Store" button
+      Then the Business Unit - Login Entry Point should be displayed
+
+
+
+
+
+
   Rule: In the mobile in-app browser, the login page shows a Home button instead of store navigation
 
     Background:
@@ -53,3 +72,4 @@ Feature: Login page
         | element       |
         | Back to Store |
         | Promo panel   |
+

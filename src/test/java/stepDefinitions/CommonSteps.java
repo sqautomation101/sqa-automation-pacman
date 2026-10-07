@@ -4,29 +4,54 @@ import com.microsoft.playwright.Locator;
 import hooks.Hooks;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import managers.PlaywrightManager;
 import utils.ReportLogger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static pages.LandingPage.escapeForRegex;
 
 public class CommonSteps {
 
     // =========================
-    // HELPERS
+    // ACTIONS
     // =========================
-    private Locator locatorFor(String elementName) {
-        return Hooks.getPageManager().locatorFor(elementName);
+    @When("the user clicks the {string} button")
+    public void theUserClicksTheButton(String buttonName) {
+        ReportLogger.info("Clicking the " + buttonName + " button");
+        try {
+            locatorFor(buttonName).click();
+            ReportLogger.pass("Successfully clicked the " + buttonName + " button");
+        } catch (Exception | AssertionError e) {
+            ReportLogger.fail("Failed to click the " + buttonName + " button. Error: "
+                    + e.getMessage(), e);
+            throw e;
+        }
     }
 
     // =========================
-    // VERIFICATION - ELEMENT TABLES
+    // VERIFICATION - SINGLE ELEMENT (fail-fast)
+    // =========================
+    @Then("the {string} button is displayed")
+    public void theButtonIsDisplayed(String buttonName) {
+        verifyElementDisplayed(buttonName);
+    }
+
+    @Then("the {string} page should be displayed")
+    public void thePageShouldBeDisplayed(String pageName) {
+        verifyElementDisplayed(pageName);
+    }
+
+    // =========================
+    // VERIFICATION - ELEMENT TABLES (collects all failures)
     // =========================
     @Then("the following elements should be displayed:")
     public void theFollowingElementsShouldBeDisplayed(DataTable table) {
-
         List<String> failures = new ArrayList<>();
 
         for (Map<String, String> row : table.asMaps()) {
@@ -73,7 +98,6 @@ public class CommonSteps {
 
     @Then("the following elements should not be displayed:")
     public void theFollowingElementsShouldNotBeDisplayed(DataTable table) {
-
         List<String> failures = new ArrayList<>();
 
         for (Map<String, String> row : table.asMaps()) {
@@ -91,12 +115,72 @@ public class CommonSteps {
     }
 
     // =========================
+    // VERIFICATION - URL
+    // =========================
+    @Then("the page URL should contain {string}")
+    public void thePageUrlShouldContain(String expectedPart) {
+        verifyUrlContains(expectedPart);
+    }
+
+    @Then("the channel id should contain {string}")
+    public void theChannelIdShouldContain(String expectedPart) {
+        verifyUrlContains(expectedPart);
+    }
+
+    // =========================
+    // VERIFICATION - TAB TITLE
+    // =========================
+    @Then("the browser tab title should be {string}")
+    public void theBrowserTabTitleShouldBe(String expectedTitle) {
+        ReportLogger.info("Verifying that the browser tab title is '" + expectedTitle + "'");
+        try {
+            assertThat(PlaywrightManager.getPage()).hasTitle(expectedTitle);
+            ReportLogger.pass("Browser tab title is '" + expectedTitle + "'");
+        } catch (Exception | AssertionError e) {
+            ReportLogger.fail("Browser tab title is not '" + expectedTitle + "'. Error: "
+                    + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    // =========================
     // PRIVATE HELPERS
     // =========================
 
-    /**
-     * Checks the element's HTML tag (or role) matches the type in the table.
-     */
+    /** Finds the element on whichever page has it. */
+    private Locator locatorFor(String elementName) {
+        return Hooks.getPageManager().locatorFor(elementName);
+    }
+
+    /** Checks one element is visible; stops the scenario immediately if not. */
+    private void verifyElementDisplayed(String elementName) {
+        ReportLogger.info("Verifying that the " + elementName + " is displayed");
+        try {
+            assertThat(locatorFor(elementName)).isVisible();
+            ReportLogger.pass("Successfully verified that the " + elementName + " is displayed");
+        } catch (Exception | AssertionError e) {
+            ReportLogger.fail("Failed to verify the " + elementName + ". Error: "
+                    + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    /** Checks the current page URL contains the given text. */
+    private void verifyUrlContains(String expectedPart) {
+        ReportLogger.info("Verifying that the page URL contains '" + expectedPart + "'");
+        try {
+            // escapeForRegex (not Pattern.quote) because Playwright sends this to the browser as a JS regex
+            assertThat(PlaywrightManager.getPage())
+                    .hasURL(Pattern.compile(".*" + escapeForRegex(expectedPart) + ".*"));
+            ReportLogger.pass("Page URL contains '" + expectedPart + "'");
+        } catch (Exception | AssertionError e) {
+            ReportLogger.fail("Page URL does not contain '" + expectedPart + "'. Error: "
+                    + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    /** Checks the element's HTML tag (or role) matches the type in the table. */
     private boolean matchesType(Locator element, String type) {
         String tag = (String) element.evaluate("el => el.tagName.toLowerCase()");
         String role = element.getAttribute("role");
@@ -113,9 +197,7 @@ public class CommonSteps {
         };
     }
 
-    /**
-     * Passes if no failures; otherwise reports all of them at once.
-     */
+    /** Passes if no failures; otherwise reports all of them at once. */
     private void reportResult(List<String> failures, String successMessage) {
         if (failures.isEmpty()) {
             ReportLogger.pass(successMessage);
